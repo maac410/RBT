@@ -10,7 +10,6 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Parameter = Autodesk.Revit.DB.Parameter;
 using System.Linq;
 
-
 namespace BT
 {
     public class Class1 : IExternalApplication
@@ -150,8 +149,8 @@ namespace BT
             }
         }
     }
-    }
-    // Correctly apply Transaction to the method that modifies Revit's data
+    
+
     [Transaction(TransactionMode.Manual)]
     public class MyTest : IExternalCommand
     {
@@ -173,4 +172,3 @@ namespace BT
             return Result.Succeeded;
         }
     }
-}
