@@ -1,4 +1,4 @@
-﻿using BT;
+using BT;
 using DocumentFormat.OpenXml.EMMA;
 using System;
 using System.Linq;
@@ -120,12 +120,3 @@ namespace BT
         }
     }
 }
-
-
-
-
-//var simpleForm = new SimpleForm(info); 
-//simpleForm.ShowDialogWithInfo(info, "mBox");
-
-//var simpleForm = new SimpleForm(info);
-//simpleForm.ShowDialogWithInfo(info, "box");

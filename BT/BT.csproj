@@ -68,6 +68,12 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+<<<<<<< HEAD
+=======
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+>>>>>>> 3e6a30d037e02b8a5ae4c2ee0b3161270a28cf8d
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
