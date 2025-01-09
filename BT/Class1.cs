@@ -4,64 +4,22 @@ using System.Runtime.InteropServices;
 using System.Reflection;
 using System;
 using Autodesk.Revit.Attributes;
-<<<<<<<<< Temporary merge branch 1
-<<<<<<< HEAD
-=========
->>>>>>>>> Temporary merge branch 2
 using System.Collections.Generic;
 using Autodesk.Revit.UI.Selection;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Parameter = Autodesk.Revit.DB.Parameter;
 using System.Linq;
-<<<<<<<<< Temporary merge branch 1
-=======
->>>>>>> 3e6a30d037e02b8a5ae4c2ee0b3161270a28cf8d
-=========
 
 namespace BT
 {
     public class Class1 : IExternalApplication
     {
-        public Result OnShutdown(UIControlledApplication application)
-<<<<<<<<< Temporary merge branch 1
-<<<<<<< HEAD
-        {
-            // Implement shutdown logic if needed
-=======
-=========
->>>>>>>>> Temporary merge branch 2
-        {
-            // Implement shutdown logic if needed
-            return Result.Succeeded;
-        }
-
         public Result OnStartup(UIControlledApplication application)
         {
             RibbonPanel ribbonPanel = application.CreateRibbonPanel("BT");
             string thisAssemblyPath = Assembly.GetExecutingAssembly().Location;
 
-            PushButtonData buttonData = new PushButtonData("cmdMyTest", "My Test", thisAssemblyPath, "BT.MyTest");
-            PushButton pushButton = ribbonPanel.AddItem(buttonData) as PushButton;
-            pushButton.ToolTip = "Hello World";
-<<<<<<<<< Temporary merge branch 1
-
->>>>>>> 3e6a30d037e02b8a5ae4c2ee0b3161270a28cf8d
-            return Result.Succeeded;
-        }
-    }
-
-<<<<<<< HEAD
-=========
-            return Result.Succeeded;
-        }
-    }
->>>>>>>>> Temporary merge branch 2
-        public Result OnStartup(UIControlledApplication application)
-        {
-            RibbonPanel ribbonPanel = application.CreateRibbonPanel("BT");
-            string thisAssemblyPath = Assembly.GetExecutingAssembly().Location;
-
-            PushButtonData buttonData = new PushButtonData("cmdMyTest", "My Test", thisAssemblyPath, "BT.MyTest");
+            PushButtonData buttonData = new PushButtonData("cmdMyTest", "RBT", thisAssemblyPath, "BT.MyTest");
             PushButton pushButton = ribbonPanel.AddItem(buttonData) as PushButton;
             pushButton.ToolTip = "Create an Assembly Blueprint";
 
@@ -81,7 +39,7 @@ namespace BT
             string info = "Selected element IDs are: ";
             bool? hasAssembly = null;
 
-            Autodesk.Revit.UI.Selection.Selection selection = uidoc.Selection;
+            Selection selection = uidoc.Selection;
 
             try
             {
@@ -103,46 +61,30 @@ namespace BT
                     if (element is AssemblyInstance assemblyInstance)
                     {
                         hasAssembly = true;
-                        info += $"\n\tAssembly Instance ID: {id.IntegerValue}";
-
                         // Process the assembly's member elements
                         ICollection<ElementId> memberIds = assemblyInstance.GetMemberIds();
 
                         foreach (ElementId memberId in memberIds)
                         {
                             Element member = doc.GetElement(memberId);
-                            info += $"\n\tAssembly member Instance ID: {memberId.IntegerValue}";
-
                             // Get the ElementType (or FamilyType) of the member
                             ElementType memberType = doc.GetElement(member.GetTypeId()) as ElementType;
-                            if (memberType != null)
-                            {
-                                // Get the category name or type name (this is what will be tracked)
-                                string categoryName = member.Category.Name;
-                                ParameterSet parameters = member.Parameters;
+                            // Get the category name or type name (this is what will be tracked)
+                            string categoryName = member.Category.Name;
+                            ParameterSet parameters = member.Parameters;
 
                                 // If this category hasn't been processed yet, add it to the list
                                 if (!processedCategories.Contains(categoryName))
                                 {
                                     processedCategories.Add(categoryName);
                                 }
-
                                 // Get parameters of the member's type (element type)
                                 Parameter[] typeParameters = memberType.Parameters.Cast<Parameter>().ToArray();
-
                                 // Collect information about the parameters of the type
                                 foreach (Parameter param in typeParameters)
                                 {
                                     string paramName = param.Definition.Name;
-                                    string paramValue = param.AsString() ?? param.AsValueString() ?? "No value";
-
-                                    // Add parameter details to the info string
-                                    info += $"\n\tCategory: {categoryName}, Type Parameter: {paramName}, Value: {paramValue}";
                                 }
-                            }
-                            else
-                            {
-                                info += $"\n\tMember ID: {memberId.IntegerValue}, No ElementType found.";
                             }
                         }
                     }
@@ -174,36 +116,4 @@ namespace BT
             }
         }
     }
-    }
-<<<<<<<<< Temporary merge branch 1
-=======
-=========
->>>>>>>>> Temporary merge branch 2
-    // Correctly apply Transaction to the method that modifies Revit's data
-    [Transaction(TransactionMode.Manual)]
-    public class MyTest : IExternalCommand
-    {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
-        {
-            var uiapp = commandData.Application;
-            var uidoc = uiapp.ActiveUIDocument;
-            var doc = uidoc.Document;
-
-            var collector = new FilteredElementCollector(doc).OfCategory(
-    BuiltInCategory.OST_Assemblies);
-
-            var SimpleForm = new SimpleForm(collector);
-            SimpleForm.ShowDialog();
-
-            // Show a simple dialog
-            TaskDialog.Show("Revit", "Hello World");
-
-            return Result.Succeeded;
-        }
-    }
-<<<<<<<<< Temporary merge branch 1
-}
->>>>>>> 3e6a30d037e02b8a5ae4c2ee0b3161270a28cf8d
-=========
-}
->>>>>>>>> Temporary merge branch 2
+    

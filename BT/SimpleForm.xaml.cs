@@ -1,7 +1,3 @@
-<<<<<<<<< Temporary merge branch 1
-<<<<<<< HEAD
-﻿using BT;
-=========
 using BT;
 using DocumentFormat.OpenXml.EMMA;
 using System;
@@ -23,7 +19,7 @@ namespace BT
         public SimpleForm(string info, HashSet<string> processedCategories) : this()
         {
             // Display the provided info in the ListBox
-            DisplayInfo(info, "Box");
+            DisplayInfo(info, "mBox");
             
 
             // Dynamically create and add checkboxes for each category to mBox
@@ -63,13 +59,7 @@ namespace BT
             // Split the info string into an array of lines
             var formattedCollection = info.Split(new[] { "\n", "\r\n" }, StringSplitOptions.None);
 
-            // Clear the existing items from the ListBox
-            if (listBoxName == "Box")
-            {
-                Box.Items.Clear(); // Clear the existing items from Box
-                Box.ItemsSource = formattedCollection; // Set the new ItemsSource
-            }
-            else if (listBoxName == "mBox")
+            if (listBoxName == "mBox")
             {
                 mBox.Items.Clear(); // Clear the existing items from mBox
                 mBox.ItemsSource = formattedCollection; // Set the new ItemsSource
@@ -124,48 +114,3 @@ namespace BT
         }
     }
 }
-<<<<<<<<< Temporary merge branch 1
-
-
-
-
-//var simpleForm = new SimpleForm(info); 
-//simpleForm.ShowDialogWithInfo(info, "mBox");
-
-//var simpleForm = new SimpleForm(info);
-//simpleForm.ShowDialogWithInfo(info, "box");
-=======
-﻿using DocumentFormat.OpenXml.Math;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-
-namespace BT
-{
-    /// <summary>
-    /// Lógica de interacción para UserControl1.xaml
-    /// </summary>
-    public partial class SimpleForm : Window
-    {
-        public SimpleForm(IEnumerable collection)
-        {
-            InitializeComponent();
-            Box.ItemsSource = collection;
-        }
-    }
-}
->>>>>>> 3e6a30d037e02b8a5ae4c2ee0b3161270a28cf8d
-=========
->>>>>>>>> Temporary merge branch 2
