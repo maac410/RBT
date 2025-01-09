@@ -4,18 +4,34 @@ using System.Runtime.InteropServices;
 using System.Reflection;
 using System;
 using Autodesk.Revit.Attributes;
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 952f483394731b3c7a6141945477ee1985e93e08
 using System.Collections.Generic;
 using Autodesk.Revit.UI.Selection;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Parameter = Autodesk.Revit.DB.Parameter;
 using System.Linq;
+<<<<<<< HEAD
 
+=======
+=======
+>>>>>>> 3e6a30d037e02b8a5ae4c2ee0b3161270a28cf8d
+>>>>>>> 952f483394731b3c7a6141945477ee1985e93e08
 
 namespace BT
 {
     public class Class1 : IExternalApplication
     {
         public Result OnShutdown(UIControlledApplication application)
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        {
+            // Implement shutdown logic if needed
+=======
+>>>>>>> 952f483394731b3c7a6141945477ee1985e93e08
         {
             // Implement shutdown logic if needed
             return Result.Succeeded;
@@ -29,9 +45,19 @@ namespace BT
             PushButtonData buttonData = new PushButtonData("cmdMyTest", "My Test", thisAssemblyPath, "BT.MyTest");
             PushButton pushButton = ribbonPanel.AddItem(buttonData) as PushButton;
             pushButton.ToolTip = "Hello World";
+<<<<<<< HEAD
             return Result.Succeeded;
         }
     }
+=======
+
+>>>>>>> 3e6a30d037e02b8a5ae4c2ee0b3161270a28cf8d
+            return Result.Succeeded;
+        }
+    }
+
+<<<<<<< HEAD
+>>>>>>> 952f483394731b3c7a6141945477ee1985e93e08
         public Result OnStartup(UIControlledApplication application)
         {
             RibbonPanel ribbonPanel = application.CreateRibbonPanel("BT");
@@ -151,6 +177,10 @@ namespace BT
         }
     }
     }
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> 952f483394731b3c7a6141945477ee1985e93e08
     // Correctly apply Transaction to the method that modifies Revit's data
     [Transaction(TransactionMode.Manual)]
     public class MyTest : IExternalCommand
@@ -173,4 +203,9 @@ namespace BT
             return Result.Succeeded;
         }
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 3e6a30d037e02b8a5ae4c2ee0b3161270a28cf8d
+>>>>>>> 952f483394731b3c7a6141945477ee1985e93e08
