@@ -12,6 +12,7 @@ namespace BT
 {
     public class Class1 : IExternalApplication
     {
+<<<<<<< HEAD
 
         // This method is called when Revit shuts down
         public Result OnShutdown(UIControlledApplication application)
@@ -33,6 +34,8 @@ namespace BT
             }
         }
 
+=======
+>>>>>>> e2f1a4c12c28e1f79472b59fc8f3dd5be4c4de07
         public Result OnStartup(UIControlledApplication application)
         {
             RibbonPanel ribbonPanel = application.CreateRibbonPanel("BT");
@@ -141,4 +144,8 @@ namespace BT
             }
         }
     }
+<<<<<<< HEAD
 }
+=======
+    
+>>>>>>> e2f1a4c12c28e1f79472b59fc8f3dd5be4c4de07
