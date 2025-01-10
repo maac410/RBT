@@ -1,19 +1,38 @@
 ﻿using Autodesk.Revit.UI;
 using Autodesk.Revit.DB;
-using System.Runtime.InteropServices;
-using System.Reflection;
-using System;
 using Autodesk.Revit.Attributes;
+using System;
 using System.Collections.Generic;
-using Autodesk.Revit.UI.Selection;
-using DocumentFormat.OpenXml.Spreadsheet;
-using Parameter = Autodesk.Revit.DB.Parameter;
 using System.Linq;
+using System.Reflection;
+using Autodesk.Revit.UI.Selection;
+using Parameter = Autodesk.Revit.DB.Parameter;
 
 namespace BT
 {
     public class Class1 : IExternalApplication
     {
+
+        // This method is called when Revit shuts down
+        public Result OnShutdown(UIControlledApplication application)
+        {
+            try
+            {
+                // Code to clean up your application when Revit shuts down
+                // For example, remove ribbon panels or other cleanup actions
+
+                // If you added a ribbon panel, you could remove it here:
+                // application.GetRibbonPanels("My Custom Panel").Clear();
+
+                return Result.Succeeded;
+            }
+            catch (Exception ex)
+            {
+                TaskDialog.Show("Error", "Error during shutdown: " + ex.Message);
+                return Result.Failed;
+            }
+        }
+
         public Result OnStartup(UIControlledApplication application)
         {
             RibbonPanel ribbonPanel = application.CreateRibbonPanel("BT");
@@ -36,84 +55,90 @@ namespace BT
             var uidoc = uiapp.ActiveUIDocument;
             var doc = uidoc.Document;
 
-            string info = "Selected element IDs are: ";
+            Autodesk.Revit.UI.Selection.Selection selection = uidoc.Selection;
             bool? hasAssembly = null;
-
-            Selection selection = uidoc.Selection;
+            HashSet<string> processedCategories = new HashSet<string>();
 
             try
             {
+                // Get the selected elements
                 ICollection<ElementId> selectedIds = selection.GetElementIds();
 
                 if (selectedIds.Count == 0)
                 {
                     TaskDialog.Show("Revit", "You haven't selected any elements.");
-                    return Autodesk.Revit.UI.Result.Failed;
+                    return Result.Failed;
                 }
 
-                // A HashSet to store processed category names or element type names
-                HashSet<string> processedCategories = new HashSet<string>();
+                // Lists to accumulate info2 and info3
+                List<string> categories = new List<string>();
+                List<string> parameters = new List<string>();
 
+                // Iterate through the selected elements
                 foreach (ElementId id in selectedIds)
                 {
                     Element element = doc.GetElement(id);
 
+                    // Check if the element is an AssemblyInstance
                     if (element is AssemblyInstance assemblyInstance)
                     {
                         hasAssembly = true;
-                        // Process the assembly's member elements
+
+                        // Get the member IDs (elements inside the assembly)
                         ICollection<ElementId> memberIds = assemblyInstance.GetMemberIds();
 
+                        // Iterate over the members of the assembly
                         foreach (ElementId memberId in memberIds)
                         {
                             Element member = doc.GetElement(memberId);
-                            // Get the ElementType (or FamilyType) of the member
                             ElementType memberType = doc.GetElement(member.GetTypeId()) as ElementType;
-                            // Get the category name or type name (this is what will be tracked)
                             string categoryName = member.Category.Name;
-                            ParameterSet parameters = member.Parameters;
 
-                                // If this category hasn't been processed yet, add it to the list
-                                if (!processedCategories.Contains(categoryName))
-                                {
-                                    processedCategories.Add(categoryName);
-                                }
-                                // Get parameters of the member's type (element type)
+                            // Add the category name to processedCategories if not already added
+                            if (!processedCategories.Contains(categoryName))
+                            {
+                                processedCategories.Add(categoryName);
+                            }
+
+                            // Collect parameters for the member type
+                            if (memberType != null)
+                            {
                                 Parameter[] typeParameters = memberType.Parameters.Cast<Parameter>().ToArray();
-                                // Collect information about the parameters of the type
                                 foreach (Parameter param in typeParameters)
                                 {
                                     string paramName = param.Definition.Name;
+                                    categories.Add(categoryName);
+                                    parameters.Add(paramName);
                                 }
                             }
                         }
                     }
                     else
                     {
-                        TaskDialog.Show("Revit", "One of the selected elements is not an assembly instance. Execution will stop.");
-                        return Autodesk.Revit.UI.Result.Failed;
+                        TaskDialog.Show("Revit", "One of the selected elements is not an assembly instance.");
+                        return Result.Failed;
                     }
                 }
 
-                // Show the result if assembly instances were found
+                // If an assembly instance was found and less than two assemblies are selected, show the form
                 if (hasAssembly.HasValue && hasAssembly.Value && selectedIds.Count < 2)
                 {
-                    // Show info in a custom Windows Form (SimpleForm)
-                    var simpleForm = new SimpleForm(info, processedCategories);  // Pass categories to the form
-                    simpleForm.ShowDialog();  // Show the form
+                    // Pass categories (info2), parameters (info3), and processedCategories directly
+                    var simpleForm = new SimpleForm(categories, parameters, processedCategories);
+                    simpleForm.ShowDialog();
                 }
                 else
                 {
-                    TaskDialog.Show("Revit", "No assembly instance elements selected or an item that isn't an assembly selected or there is more than one assembly selected.");
+                    TaskDialog.Show("Revit", "No assembly instance elements selected, an item that isn't an assembly selected, or more than one assembly selected.");
                 }
 
-                return Autodesk.Revit.UI.Result.Succeeded;
+                return Result.Succeeded;
             }
             catch (Exception e)
             {
                 message = e.Message;
-                return Autodesk.Revit.UI.Result.Failed;
+                return Result.Failed;
             }
         }
     }
-    
+}

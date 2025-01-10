@@ -1,113 +1,102 @@
-using BT;
-using DocumentFormat.OpenXml.EMMA;
+using DocumentFormat.OpenXml.Spreadsheet;
 using System;
-using System.Linq;
-using System.Windows;
 using System.Collections.Generic;
+using System.Text;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace BT
 {
     public partial class SimpleForm : Window
     {
-        public SimpleForm()
+        private HashSet<string> selectedCategories = new HashSet<string>();
+        private List<string> categories;
+        private List<string> parameters;
+        private HashSet<string> processedCategories;
+
+        // Constructor accepting categories, parameters, and processedCategories
+        public SimpleForm(List<string> categories, List<string> parameters, HashSet<string> processedCategories)
         {
             InitializeComponent();
+            this.categories = categories;
+            this.parameters = parameters;
+            this.processedCategories = processedCategories;
+
+            // Populate the UI (TextBlocks and ListBox)
+            DisplayInfo();
         }
 
-        // Constructor that accepts info and processed categories (HashSet)
-        public SimpleForm(string info, HashSet<string> processedCategories) : this()
+        // Display the information in the UI
+        private void DisplayInfo()
         {
-            // Display the provided info in the ListBox
-            DisplayInfo(info, "mBox");
-            
+            // Set the text for the fixed message in infoTextBlock1
+            infoTextBlock1.Text = "Tables to be created";
 
-            // Dynamically create and add checkboxes for each category to mBox
-            foreach (var category in processedCategories)
+            // Check if we have categories to show, and select one category (if needed)
+            if (categories.Count > 0)
             {
-                // Create a new CheckBox
-                CheckBox checkBox = new CheckBox();
-                checkBox.Content = category; // Set the checkbox content as the category name
-                checkBox.Margin = new Thickness(5);
+                string category = categories[0]; // Assuming you only want to display one category
+           
 
-                // Optionally add an event handler for Checked/Unchecked events
+                // Create a single checkbox for the category
+                var checkBox = new CheckBox
+                {
+                    Content = category,
+                    Margin = new Thickness(5),
+                    IsChecked = processedCategories.Contains(category)
+                };
+
                 checkBox.Checked += CheckBox_Checked;
                 checkBox.Unchecked += CheckBox_Unchecked;
 
-                // Wrap the checkbox in a ListBoxItem (mBox requires ListBoxItems)
-                ListBoxItem listBoxItem = new ListBoxItem();
-                listBoxItem.Content = checkBox;
-
-                // Add the ListBoxItem (containing the CheckBox) to mBox
-                mBox.Items.Add(listBoxItem);
+                // Add the checkbox to the ListBox (mBox)
+                mBox.Items.Add(checkBox);
             }
         }
 
-        // Show the form with the passed info and specify which ListBox to use
-        public void ShowDialog(string info, string listBoxName)
-        {
-            // Display info in the specified ListBox
-            DisplayInfo(info, listBoxName);
-
-            // Show the dialog window
-            this.ShowDialog();
-        }
-
-        // Helper method to handle displaying information in a ListBox
-        private void DisplayInfo(string info, string listBoxName)
-        {
-            // Split the info string into an array of lines
-            var formattedCollection = info.Split(new[] { "\n", "\r\n" }, StringSplitOptions.None);
-
-            if (listBoxName == "mBox")
-            {
-                mBox.Items.Clear(); // Clear the existing items from mBox
-                mBox.ItemsSource = formattedCollection; // Set the new ItemsSource
-            }
-        }
-
-
-        // Checkbox Checked event handler (optional)
-        private HashSet<string> selectedCategories = new HashSet<string>();
-
-
+        // Event handler when a checkbox is checked
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            // Cast sender to CheckBox
             CheckBox checkBox = sender as CheckBox;
-
             if (checkBox != null)
             {
-                // Get the category name from the checkbox content
                 string category = checkBox.Content.ToString();
+                selectedCategories.Add(category);  // This stores the selected category in a list.
 
-                // Add the category to the selectedCategories HashSet
-                selectedCategories.Add(category);
-
-                // Optionally, update the info string with the selected category (if needed)
-                ShowDialog($"Categories selected: {category}", "mBox");
+                foreach (var parameter in parameters)  // Assuming 'parameters' is a list of 'Parameter' objects.
+                {
+                    // Update a ListBox (instead of TextBlock) with each parameter item.
+                    infoTextBlock3.Items.Add(parameter);  // Add each parameter to the ListBox
+                }
             }
         }
 
+        // Event handler when a checkbox is unchecked
         private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
-            // Cast sender to CheckBox
             CheckBox checkBox = sender as CheckBox;
-
             if (checkBox != null)
             {
-                // Get the category name from the checkbox content
                 string category = checkBox.Content.ToString();
+                selectedCategories.Add(category);  // This stores the selected category in a list.
 
-                // Remove the category from the selectedCategories HashSet
-                selectedCategories.Remove(category);
-
-                // Optionally, update the info string to reflect the deselection
-                ShowDialog($"\nCategory deselected: {category}", "mBox");
+                // If you are using TextBlock to show parameters as text:
+                StringBuilder sb = new StringBuilder();
+                foreach (var parameter in parameters)  // Assuming 'parameters' is a list of 'Parameter' objects.
+                {
+                    infoTextBlock3.Items.Remove(parameter);  // Add each parameter to the ListBox
+                }
             }
+
         }
 
-        // Cancel Button Click event handler
+        // OK Button click handler
+        private void Ok_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        // CANCEL Button click handler
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
