@@ -3,65 +3,21 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="BT-Assembly Blueprint" Height="350" Width="500" ResizeMode="CanResize">
     <Grid>
-            <!-- Defining one row for the content -->
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-
-            <!-- Subgrid for controls -->
+        <!-- Subgrid for controls -->
             <Grid x:Name="grid" Grid.Row="0">
                 <!-- Define columns -->
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" MaxWidth="10" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" MaxWidth="30" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" MaxWidth="10" />
-                </Grid.ColumnDefinitions>
-
-                <!-- Define rows -->
-                <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                 <TextBlock Name="Rotulo" HorizontalAlignment="Left" VerticalAlignment="Top"
-            Grid.Column="1" Grid.Row="1" MinHeight="30"/>
-            <TextBlock Name="Views" HorizontalAlignment="Left" VerticalAlignment="Top"
-            Grid.Column="1" Grid.Row="2" MinHeight="30"/>
-
-            <ListBox Name="viewsBox" MaxHeight="35" Grid.Row="3" Grid.Column="1"
-              VerticalAlignment="Center" BorderBrush="Transparent" BorderThickness="0">
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="Background" Value="Transparent"/>
-                    </Style>
-                </ListBox.ItemContainerStyle>
-            </ListBox>
-            <!-- Info TextBlock -->
-                <TextBlock Name="infoTextBlock1" HorizontalAlignment="Left" VerticalAlignment="Top"
-                           Grid.Column="1" Grid.Row="4" MinHeight="30"/>
-
-                <!-- ListBox for displaying items -->
-            <ListBox Name="mBox" MaxHeight="35" Grid.Row="5" Grid.Column="1"
-                         VerticalAlignment="Center" BorderBrush="Transparent" BorderThickness="0">
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="Background" Value="Transparent"/>
-                    </Style>
-                </ListBox.ItemContainerStyle>
-            </ListBox>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MaxWidth="10" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" MaxWidth="30" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" MaxWidth="10" />
+            </Grid.ColumnDefinitions>
         </Grid>
 
             <!-- DockPanel for OK and CANCEL buttons -->
-    <DockPanel VerticalAlignment="Bottom" DockPanel.Dock="Bottom">
-        <!-- CANCEL button -->
+        <DockPanel VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Background="Gray">
+            <!-- CANCEL button -->
         <Button Name="Cancel" Content="CANCEL" HorizontalAlignment="Right" Width="80" Height="30" 
                     Click="Cancel_Click" DockPanel.Dock="Right" Margin="0,10,10,10"/>
 

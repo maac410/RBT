@@ -1,5 +1,4 @@
 using Autodesk.Revit.DB;
-using DocumentFormat.OpenXml.Spreadsheet;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,7 +14,6 @@ namespace BT
         private List<string> parameters;
         private HashSet<string> processedCategories;
 
-        // Constructor accepting categories, parameters, and processedCategories
         public SimpleForm(List<string> categories, List<string> parameters, HashSet<string> processedCategories)
         {
             InitializeComponent();
@@ -23,118 +21,117 @@ namespace BT
             this.parameters = parameters;
             this.processedCategories = processedCategories;
 
-            // Populate the UI (TextBlocks and ListBox)
             DisplayInfo();
         }
 
-        // Display the information in the UI
         private void DisplayInfo()
         {
-            Rotulo.Text = "Rotulo";
-            Views.Text = "Views to Create";
-            infoTextBlock1.Text = "Tables to be created";
-
             if (categories.Count > 0)
             {
-                string category = categories[0]; // Assuming you only want to display one category
-
-                // Create a single checkbox for the category
-                var checkBox = new CheckBox
+                // Dynamically add rows based on categories count
+                for (int i = grid.RowDefinitions.Count; i < categories.Count; i++)
                 {
-                    Content = category,
-                    Margin = new Thickness(5),
-                    IsChecked = processedCategories.Contains(category)
-                };
+                    grid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });  // Adding rows dynamically
+                }
+                // Loop through each category and create a ListBox
+                foreach (string category in categories)
+                {
+                    // Create a new ListBox for each category
+                    ListBox newListBox = new ListBox
+                    {
+                        Margin = new Thickness(5), // Optional margin for spacing
+                        MinHeight = 20,
+                        MinWidth = 200
+                    };
 
-                checkBox.Checked += CheckBox_Checked;
-                checkBox.Unchecked += CheckBox_Unchecked;
+                    // Create a checkbox for the category
+                    var checkBox = new CheckBox
+                    {
+                        Content = category,
+                        Margin = new Thickness(5),
+                        IsChecked = processedCategories.Contains(category)
+                    };
 
-                // Add the checkbox to the ListBox (mBox)
-                mBox.Items.Add(checkBox);
+                    // Add the checkbox to the newly created ListBox
+                    newListBox.Items.Add(checkBox);
+
+                    // Get the next available row index for placing the ListBox
+                    int newRowIndex = grid.RowDefinitions.Count - categories.Count + categories.IndexOf(category);
+
+                    // Set the row and column for the ListBox
+                    System.Windows.Controls.Grid.SetRow(newListBox, newRowIndex);
+                    System.Windows.Controls.Grid.SetColumn(newListBox, 1);  // Place it in column 1 (you can change the column as needed)
+
+                    // Add the ListBox to the Grid
+                    grid.Children.Add(newListBox);
+
+                    // Subscribe to events for the checkbox
+                    checkBox.Checked += CheckBox_Checked;
+                    checkBox.Unchecked += CheckBox_Unchecked;
+                
             }
         }
 
+    }
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
             CheckBox checkBox = sender as CheckBox;
             if (checkBox != null)
             {
                 string category = checkBox.Content.ToString();
-                selectedCategories.Remove(category);  // Remove the category from the selected list
+                selectedCategories.Add(category);  // Remove the category from the selected list
 
                 // Create a new ListBox dynamically if it doesn't exist yet
                 ListBox newListBox = new ListBox
                 {
                     MinHeight = 10,
                     MaxHeight = 200,
-                    MinWidth = 200
+                    MinWidth = 200,
+                    Width = Double.NaN,  // Auto is equivalent to NaN for width in C#
+                    VerticalAlignment = VerticalAlignment.Top,
+                    HorizontalAlignment = HorizontalAlignment.Left
                 };
 
+                // Helper method to create a button with common properties
+                Button CreateButton(string name, string content)
+                {
+                    return new Button
+                    {
+                        Name = name,
+                        Content = content,
+                        VerticalAlignment = VerticalAlignment.Top,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Width = 20,
+                        Height = 20,
+                        Margin = new Thickness(5) // Adds spacing between buttons
+                    };
+                }
+
+                // Create a StackPanel to hold the buttons
                 StackPanel buttonPanel = new StackPanel
                 {
-                    Orientation = Orientation.Horizontal, // Use Horizontal for a row layout
+                    Orientation = Orientation.Vertical, // Stack buttons vertically
                     VerticalAlignment = VerticalAlignment.Top,
                     HorizontalAlignment = HorizontalAlignment.Center
                 };
-                // Create buttons
-                Button newButtonUp = new Button
-                {
-                    Name = "Up",
-                    Content = "?",
-                    VerticalAlignment = VerticalAlignment.Top,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    Width = 20,
-                    Height = 20,
-                    Margin = new Thickness(5) // Adds spacing between buttons
-                };
 
-                Button newButtonDown = new Button
-                {
-                    Name = "Down",
-                    Content = "?",
-                    VerticalAlignment = VerticalAlignment.Top,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    Width = 20,
-                    Height = 20,
-                    Margin = new Thickness(5) // Adds spacing between buttons
-                };
+                // Create and add buttons to the StackPanel using the helper method
+                buttonPanel.Children.Add(CreateButton("Up", "Up"));
+                buttonPanel.Children.Add(CreateButton("Down", "Down"));
+                buttonPanel.Children.Add(CreateButton("Minus", "-"));
+                buttonPanel.Children.Add(CreateButton("Plus", "+"));
 
-                Button newButtonMinus = new Button
-                {
-                    Name = "Minus",
-                    Content = "-",
-                    VerticalAlignment = VerticalAlignment.Top,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    Width = 20,
-                    Height = 20,
-                    Margin = new Thickness(5) // Adds spacing between buttons
-                };
+                // Add the StackPanel to your grid or container
+                grid.Children.Add(buttonPanel);
 
-                Button newButtonPlus = new Button
-                {
-                    Name = "Plus",
-                    Content = "+",
-                    VerticalAlignment = VerticalAlignment.Top,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    Width = 20,
-                    Height = 20,
-                    Margin = new Thickness(5) // Adds spacing between buttons
-                };
-
-                // Add buttons to the panel
-                buttonPanel.Children.Add(newButtonUp);
-                buttonPanel.Children.Add(newButtonDown);
-                buttonPanel.Children.Add(newButtonMinus);
-                buttonPanel.Children.Add(newButtonPlus);
-
-                // Create a new row in the Grid dynamically
+                // Dynamically add a new row to the grid
                 int newRowIndex = grid.RowDefinitions.Count;  // Get the next available row index
                 grid.RowDefinitions.Add(new RowDefinition());  // Add a new row to the Grid
 
-                // Add the StackPanel to the Grid (if you want to place buttons on the grid)
-                System.Windows.Controls.Grid.SetRow(buttonPanel, newRowIndex);
-                System.Windows.Controls.Grid.SetColumn(buttonPanel, 0); // You can change this if needed
-                grid.Children.Add(buttonPanel);
+                // Set the row index for the StackPanel if needed
+                System.Windows.Controls.Grid.SetRow(buttonPanel, newRowIndex);  // Assign the StackPanel to the new row
+                System.Windows.Controls.Grid.SetColumn(buttonPanel, 2);  // Place it in column 1, or change as needed
+
 
                 // Add parameters to the ListBox
                 foreach (var parameter in parameters)
@@ -143,29 +140,43 @@ namespace BT
                 }
 
                 // Add the new ListBox to the Grid at the new row index
-                System.Windows.Controls.Grid.SetRow(newListBox, newRowIndex + 1);
+                System.Windows.Controls.Grid.SetRow(newListBox, newRowIndex);
                 System.Windows.Controls.Grid.SetColumn(newListBox, 1);  // Place it in column 1, or change as needed
                 grid.Children.Add(newListBox);  // Add the ListBox to the Grid
+
+                // Optionally, if you have other specific logic for adding another ListBox:
+                ListBox newListBox2 = new ListBox
+                {
+                    VerticalAlignment = VerticalAlignment.Top,
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    MinWidth = 200,
+                    Width = Double.NaN,  // Auto is equivalent to NaN for width in C#
+                    MinHeight = 200,
+                    Margin = new Thickness(5) // Optional, for spacing
+                };
+
+                // Add this second ListBox to the grid with different row/column or similar positioning
+                System.Windows.Controls.Grid.SetRow(newListBox2, newRowIndex);  // Place it on the next row or use your logic
+                System.Windows.Controls.Grid.SetColumn(newListBox2, 3);  // Same or different column as needed
+                grid.Children.Add(newListBox2);  // Add the second ListBox to the Grid
             }
         }
 
         private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
             CheckBox checkBox = sender as CheckBox;
-            if (checkBox != null)
+            if (checkBox == null)
             {
                 string category = checkBox.Content.ToString();
-                selectedCategories.Add(category);  // This stores the selected category in a list.
+                selectedCategories.Remove(category);  // This stores the selected category in a list.
             }
         }
 
-        // OK Button click handler
         private void Ok_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
         }
 
-        // CANCEL Button click handler
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
