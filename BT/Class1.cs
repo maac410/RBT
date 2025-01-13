@@ -12,6 +12,10 @@ namespace BT
 {
     public class Class1 : IExternalApplication
     {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 6356d7713190bb0a95de3dd4118e565a7ee1d506
 
         public Result OnShutdown(UIControlledApplication application)
         {
@@ -31,6 +35,12 @@ namespace BT
                 return Result.Failed;
             }
         }
+<<<<<<< HEAD
+=======
+
+=======
+>>>>>>> e2f1a4c12c28e1f79472b59fc8f3dd5be4c4de07
+>>>>>>> 6356d7713190bb0a95de3dd4118e565a7ee1d506
         public Result OnStartup(UIControlledApplication application)
         {
             RibbonPanel ribbonPanel = application.CreateRibbonPanel("BT");
@@ -139,4 +149,12 @@ namespace BT
             }
         }
     }
+<<<<<<< HEAD
 }
+=======
+<<<<<<< HEAD
+}
+=======
+    
+>>>>>>> e2f1a4c12c28e1f79472b59fc8f3dd5be4c4de07
+>>>>>>> 6356d7713190bb0a95de3dd4118e565a7ee1d506
