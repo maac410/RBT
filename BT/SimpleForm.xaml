@@ -4,8 +4,8 @@
         Title="BT-Assembly Blueprint" Height="350" Width="500" ResizeMode="CanResize">
     <Grid>
         <!-- Subgrid for controls -->
-            <Grid x:Name="grid" Grid.Row="0">
-                <!-- Define columns -->
+        <Grid x:Name="grid" Grid.Row="0">
+            <!-- Define columns -->
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" MaxWidth="10" />
                 <ColumnDefinition Width="*" />
