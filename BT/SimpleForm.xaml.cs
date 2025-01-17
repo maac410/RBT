@@ -141,13 +141,41 @@ namespace BT
             CheckBox checkBox = sender as CheckBox;
             if (checkBox == null)
             {
-                string category = checkBox.Content.ToString();
-                selectedCategories.Remove(category);  // This stores the selected category in a list.
+                listbox.Items.Clear();
             }
+        }
+        public static void CreateSchedule(Document doc)
+        {
+            // Create a new Schedule Definition
+            ScheduleDefinition scheduleDefinition = new ScheduleDefinition();
+
+            // Create the Schedule View for Walls
+            ViewSchedule Schedule = ViewSchedule.CreateSchedule(doc, category);
+
+            // Define fields (parameters) to show in the schedule
+            ScheduleField widthField = new ScheduleField(ScheduleFieldType.Parameter);
+            widthField.Parameter = BuiltInParameter.WALL_ATTR_WIDTH_PARAM;
+            wallSchedule.Definition.AddField(widthField);
+
+            ScheduleField lengthField = new ScheduleField(ScheduleFieldType.Parameter);
+            lengthField.Parameter = BuiltInParameter.CURVE_ELEM_LENGTH;
+            wallSchedule.Definition.AddField(lengthField);
+
+            // Add sorting and filtering if necessary
+            ScheduleSortGroupField sortField = new ScheduleSortGroupField(0); // 0 refers to the first column
+            wallSchedule.Definition.AddSortGroupField(sortField);
+
+            // Optional: Add the schedule to a sheet
+            ViewSheet sheet = ViewSheet.Create(doc, ElementId.InvalidElementId);
+            sheet.AddView(wallSchedule.Id);
+
+            // Commit the changes
+            doc.Regenerate();
         }
 
         private void Ok_Click(object sender, RoutedEventArgs e)
         {
+
             this.Close();
         }
 
