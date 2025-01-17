@@ -1,7 +1,5 @@
-using Autodesk.Revit.DB;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -9,13 +7,9 @@ namespace BT
 {
     public partial class SimpleForm : Window
     {
-        private HashSet<string> selectedCategories = new HashSet<string>();
         private List<string> categories;
         private List<string> parameters;
         private HashSet<string> processedCategories;
-
-        int newRowIndex = 0;
-        int newRowIndex2 = 0;
 
         public SimpleForm(List<string> categories, List<string> parameters, HashSet<string> processedCategories)
         {
@@ -29,123 +23,109 @@ namespace BT
 
         private void DisplayInfo()
         {
-            // Dynamically add rows if necessary
+            int newRowIndex = 0;
+            int newRowIndex2 = 0;
+
+            // Add row definitions for each category
             for (int i = grid.RowDefinitions.Count; i < categories.Count; i++)
             {
-                grid.RowDefinitions.Add(new RowDefinition());
+                grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             }
 
-            // Create ListBoxes for each category
+            // Loop through each category and create a checkbox and list box
             foreach (string category in categories)
             {
-                // Create the ListBox for this category
-                ListBox newListBox = new ListBox
-                {
-                    Margin = new Thickness(5),
-                    MinHeight = 20,
-                    MinWidth = 200
-                };
-
-                // Add the checkbox for the category
+                // Create the ListBox to hold the checkbox for the category
+                ListBox newListBox = new ListBox();
                 var checkBox = new CheckBox
                 {
                     Content = category,
                     Margin = new Thickness(5),
-                    IsChecked = processedCategories.Contains(category)
+                    IsChecked = processedCategories.Contains(category) // Check the box if processedCategories contains the category
                 };
+
+                // Add checkbox to the ListBox
                 newListBox.Items.Add(checkBox);
 
-                // Calculate the next available row index
-                newRowIndex = grid.RowDefinitions.Count - categories.Count + categories.IndexOf(category);
-
-                // Set row and column for the ListBox
+                // Set the row and column for the ListBox containing the checkbox
                 System.Windows.Controls.Grid.SetRow(newListBox, newRowIndex);
                 System.Windows.Controls.Grid.SetColumn(newListBox, 1);
-
                 grid.Children.Add(newListBox);
 
-                // Subscribe to checkbox events
-                checkBox.Checked += CheckBox_Checked;
-                checkBox.Unchecked += CheckBox_Unchecked;
-            }
-        }
-
-        private void CheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-            var checkBox = sender as CheckBox;
-            if (checkBox != null)
-            {
-                string category = checkBox.Content.ToString();
-                selectedCategories.Add(category);
-
-                // Create the ListBox to hold parameters
-                ListBox newListBox = new ListBox
+                // Create a new ListBox for the parameters
+                ListBox parameterListBox = new ListBox();
+                foreach (var parameter in parameters)
                 {
-                    MinHeight = 10,
-                    MaxHeight = 200,
-                    MinWidth = 200,
-                    Width = Double.NaN,
-                    VerticalAlignment = VerticalAlignment.Top,
-                    HorizontalAlignment = HorizontalAlignment.Left
-                };
-
-                // Helper function to create buttons
-                Button CreateButton(string name, string content)
-                {
-                    return new Button
-                    {
-                        Name = name,
-                        Content = content,
-                        VerticalAlignment = VerticalAlignment.Top,
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        Width = 20,
-                        Height = 20,
-                        Margin = new Thickness(5)
-                    };
+                    parameterListBox.Items.Add(parameter);
                 }
 
-                // Create a StackPanel for buttons
+                // Set the row and column for the parameter list box
+                System.Windows.Controls.Grid.SetRow(parameterListBox, newRowIndex);
+                System.Windows.Controls.Grid.SetColumn(parameterListBox, 2);
+                grid.Children.Add(parameterListBox);
+
+                // Add a StackPanel for the buttons below the ListBoxes (Up, Down, Minus, Plus)
                 StackPanel buttonPanel = new StackPanel
                 {
                     Orientation = Orientation.Vertical,
                     VerticalAlignment = VerticalAlignment.Top,
                     HorizontalAlignment = HorizontalAlignment.Center
                 };
+                buttonPanel.Children.Add(CreateButton("Up", "Up", Up_Click));
+                buttonPanel.Children.Add(CreateButton("Down", "Down", Down_Click));
+                buttonPanel.Children.Add(CreateButton("Minus", "-", Minus_Click));
+                buttonPanel.Children.Add(CreateButton("Plus", "+", Plus_Click));
 
-                // Add buttons to StackPanel
-                buttonPanel.Children.Add(CreateButton("Up", "Up"));
-                buttonPanel.Children.Add(CreateButton("Down", "Down"));
-                buttonPanel.Children.Add(CreateButton("Minus", "-"));
-                buttonPanel.Children.Add(CreateButton("Plus", "+"));
-
-                // Add buttons StackPanel to the grid
-                System.Windows.Controls.Grid.SetRow(buttonPanel, newRowIndex2);
-                System.Windows.Controls.Grid.SetColumn(buttonPanel, 2);
+                // Set row and column for the button panel
+                System.Windows.Controls.Grid.SetRow(buttonPanel, newRowIndex);
+                System.Windows.Controls.Grid.SetColumn(buttonPanel, 3);
                 grid.Children.Add(buttonPanel);
 
-                // Add parameters to ListBox
-                foreach (var parameter in parameters)
-                {
-                    newListBox.Items.Add(parameter);
-                }
-
-                // Add ListBox to grid
-                System.Windows.Controls.Grid.SetRow(newListBox, newRowIndex2);
-                System.Windows.Controls.Grid.SetColumn(newListBox, 1);
-                grid.Children.Add(newListBox);
+                // Increment row index for the next iteration
+                newRowIndex++;
             }
         }
 
-        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        // Method to create a button with event handlers
+        private Button CreateButton(string name, string content, RoutedEventHandler clickEventHandler)
         {
-            CheckBox checkBox = sender as CheckBox;
-            if (checkBox == null)
+            Button button = new Button
             {
-                string category = checkBox.Content.ToString();
-                selectedCategories.Remove(category);  // This stores the selected category in a list.
-            }
+                Name = name,
+                Content = content,
+                VerticalAlignment = VerticalAlignment.Top,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Width = 20,
+                Height = 20,
+                Margin = new Thickness(5)
+            };
+
+            button.Click += clickEventHandler;
+            return button;
         }
 
+        // Placeholder methods for Up, Down, Minus button clicks
+        private void Up_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Up button clicked");
+        }
+
+        private void Down_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Down button clicked");
+        }
+
+        private void Minus_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Minus button clicked");
+        }
+
+        private void Plus_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Plus button clicked");
+        }
+
+        // Methods for Ok and Cancel buttons
         private void Ok_Click(object sender, RoutedEventArgs e)
         {
             this.Close();

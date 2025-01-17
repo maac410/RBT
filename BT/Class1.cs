@@ -4,9 +4,9 @@ using Autodesk.Revit.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Autodesk.Revit.UI.Selection;
 using Parameter = Autodesk.Revit.DB.Parameter;
+using System.Reflection;
 
 namespace BT
 {
@@ -24,6 +24,7 @@ namespace BT
                 return Result.Failed;
             }
         }
+
         public Result OnStartup(UIControlledApplication application)
         {
             RibbonPanel ribbonPanel = application.CreateRibbonPanel("BT");
@@ -114,7 +115,7 @@ namespace BT
                 // If an assembly instance was found and less than two assemblies are selected, show the form
                 if (hasAssembly.HasValue && hasAssembly.Value && selectedIds.Count < 2)
                 {
-                    // Pass categories (info2), parameters (info3), and processedCategories directly
+                    // Pass categories and parameters directly to SimpleForm
                     var simpleForm = new SimpleForm(categories, parameters, processedCategories);
                     simpleForm.ShowDialog();
                 }
