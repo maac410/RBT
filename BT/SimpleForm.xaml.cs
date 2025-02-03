@@ -91,6 +91,7 @@ namespace BT
         {
             Button button = new Button
             {
+<<<<<<< HEAD
                 Name = name,
                 Content = content,
                 VerticalAlignment = VerticalAlignment.Top,
@@ -102,6 +103,38 @@ namespace BT
 
             button.Click += clickEventHandler;
             return button;
+=======
+                listbox.Items.Clear();
+            }
+>>>>>>> d1f189b8784d4e2130429952af3bd14a6deab2e6
+        }
+        public static void CreateSchedule(Document doc)
+        {
+            // Create a new Schedule Definition
+            ScheduleDefinition scheduleDefinition = new ScheduleDefinition();
+
+            // Create the Schedule View for Walls
+            ViewSchedule Schedule = ViewSchedule.CreateSchedule(doc, category);
+
+            // Define fields (parameters) to show in the schedule
+            ScheduleField widthField = new ScheduleField(ScheduleFieldType.Parameter);
+            widthField.Parameter = BuiltInParameter.WALL_ATTR_WIDTH_PARAM;
+            wallSchedule.Definition.AddField(widthField);
+
+            ScheduleField lengthField = new ScheduleField(ScheduleFieldType.Parameter);
+            lengthField.Parameter = BuiltInParameter.CURVE_ELEM_LENGTH;
+            wallSchedule.Definition.AddField(lengthField);
+
+            // Add sorting and filtering if necessary
+            ScheduleSortGroupField sortField = new ScheduleSortGroupField(0); // 0 refers to the first column
+            wallSchedule.Definition.AddSortGroupField(sortField);
+
+            // Optional: Add the schedule to a sheet
+            ViewSheet sheet = ViewSheet.Create(doc, ElementId.InvalidElementId);
+            sheet.AddView(wallSchedule.Id);
+
+            // Commit the changes
+            doc.Regenerate();
         }
 
         // Placeholder methods for Up, Down, Minus button clicks
@@ -128,6 +161,7 @@ namespace BT
         // Methods for Ok and Cancel buttons
         private void Ok_Click(object sender, RoutedEventArgs e)
         {
+
             this.Close();
         }
 
