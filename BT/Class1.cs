@@ -50,6 +50,7 @@ namespace BT
             Autodesk.Revit.UI.Selection.Selection selection = uidoc.Selection;
             bool? hasAssembly = null;
             HashSet<string> processedCategories = new HashSet<string>();
+            HashSet<string> processedParameters = new HashSet<string>();
 
             try
             {
@@ -62,7 +63,7 @@ namespace BT
                     return Result.Failed;
                 }
 
-                // Lists to accumulate info2 and info3
+                // Lists to accumulate categories and parameters
                 List<string> categories = new List<string>();
                 List<string> parameters = new List<string>();
 
@@ -86,10 +87,11 @@ namespace BT
                             ElementType memberType = doc.GetElement(member.GetTypeId()) as ElementType;
                             string categoryName = member.Category.Name;
 
-                            // Add the category name to processedCategories if not already added
+                            // Add the category name to categories list if not already added
                             if (!processedCategories.Contains(categoryName))
                             {
                                 processedCategories.Add(categoryName);
+              
                             }
 
                             // Collect parameters for the member type
@@ -99,8 +101,14 @@ namespace BT
                                 foreach (Parameter param in typeParameters)
                                 {
                                     string paramName = param.Definition.Name;
-                                    categories.Add(categoryName);
-                                    parameters.Add(paramName);
+
+                                    // Add parameter name to the parameters list if not already added
+                                    if (!processedParameters.Contains(paramName))
+                                    {
+                                        processedParameters.Add(paramName);
+                                        parameters.Add(paramName);  // Add to the parameters list
+                                        categories.Add(categoryName);  // Add to the categories list
+                                    }
                                 }
                             }
                         }
@@ -116,7 +124,7 @@ namespace BT
                 if (hasAssembly.HasValue && hasAssembly.Value && selectedIds.Count < 2)
                 {
                     // Pass categories and parameters directly to SimpleForm
-                    var simpleForm = new SimpleForm(categories, parameters, processedCategories);
+                    var simpleForm = new SimpleForm(categories, parameters, processedCategories, processedParameters);
                     simpleForm.ShowDialog();
                 }
                 else

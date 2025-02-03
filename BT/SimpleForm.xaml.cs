@@ -10,21 +10,22 @@ namespace BT
         private List<string> categories;
         private List<string> parameters;
         private HashSet<string> processedCategories;
+        private HashSet<string> processedParameters;
 
-        public SimpleForm(List<string> categories, List<string> parameters, HashSet<string> processedCategories)
+        public SimpleForm(List<string> categories, List<string> parameters, HashSet<string> processedCategories, HashSet<string> processedParameters)
         {
             InitializeComponent();
             this.categories = categories;
             this.parameters = parameters;
             this.processedCategories = processedCategories;
+            this.processedParameters = processedParameters;
 
             DisplayInfo();
         }
 
         private void DisplayInfo()
         {
-            int newRowIndex = 0;
-            int newRowIndex2 = 0;
+            int newRowIndex = 2;
 
             // Add row definitions for each category
             for (int i = grid.RowDefinitions.Count; i < categories.Count; i++)
@@ -33,14 +34,14 @@ namespace BT
             }
 
             // Loop through each category and create a checkbox and list box
-            foreach (string category in categories)
+            foreach (string category in processedCategories)
             {
                 // Create the ListBox to hold the checkbox for the category
                 ListBox newListBox = new ListBox();
                 var checkBox = new CheckBox
                 {
                     Content = category,
-                    Margin = new Thickness(5),
+                    Margin = new Thickness(5),                   
                     IsChecked = processedCategories.Contains(category) // Check the box if processedCategories contains the category
                 };
 
@@ -48,20 +49,27 @@ namespace BT
                 newListBox.Items.Add(checkBox);
 
                 // Set the row and column for the ListBox containing the checkbox
-                System.Windows.Controls.Grid.SetRow(newListBox, newRowIndex);
-                System.Windows.Controls.Grid.SetColumn(newListBox, 1);
+                Grid.SetRow(newListBox, newRowIndex);
+                Grid.SetColumn(newListBox, 1);
                 grid.Children.Add(newListBox);
 
+
+                // Increment row index for the next iteration
+                newRowIndex++;
+
                 // Create a new ListBox for the parameters
-                ListBox parameterListBox = new ListBox();
-                foreach (var parameter in parameters)
+                ListBox parameterListBox = new ListBox {
+                    MaxHeight = 200,
+                    Margin= new Thickness(0,0,0,30)
+                };
+                foreach (var parameter in processedParameters)
                 {
                     parameterListBox.Items.Add(parameter);
                 }
 
                 // Set the row and column for the parameter list box
-                System.Windows.Controls.Grid.SetRow(parameterListBox, newRowIndex);
-                System.Windows.Controls.Grid.SetColumn(parameterListBox, 2);
+                Grid.SetRow(parameterListBox, newRowIndex);
+                Grid.SetColumn(parameterListBox, 1);
                 grid.Children.Add(parameterListBox);
 
                 // Add a StackPanel for the buttons below the ListBoxes (Up, Down, Minus, Plus)
@@ -77,8 +85,8 @@ namespace BT
                 buttonPanel.Children.Add(CreateButton("Plus", "+", Plus_Click));
 
                 // Set row and column for the button panel
-                System.Windows.Controls.Grid.SetRow(buttonPanel, newRowIndex);
-                System.Windows.Controls.Grid.SetColumn(buttonPanel, 3);
+                Grid.SetRow(buttonPanel, newRowIndex);
+                Grid.SetColumn(buttonPanel, 2);
                 grid.Children.Add(buttonPanel);
 
                 // Increment row index for the next iteration
@@ -123,6 +131,29 @@ namespace BT
         private void Plus_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("Plus button clicked");
+        }
+        // Event handler for Option 1 click
+        private void Option1_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Option 1 selected.");
+        }
+
+        // Event handler for Option 2 click
+        private void Option2_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Option 2 selected.");
+        }
+
+        // Event handler for Option 3 click
+        private void Option3_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Option 3 selected.");
+        }
+
+        // Event handler for the main button to show options
+        private void OptionButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Optional: Custom logic when the button itself is clicked
         }
 
         // Methods for Ok and Cancel buttons
