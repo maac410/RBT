@@ -19,9 +19,9 @@
                     </Grid.ColumnDefinitions>
                     <Border Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="Gray" BorderThickness="0,0,0,1" Padding="0,0,0,5">
                         <TextBlock Text="Rotulo"></TextBlock>
-                        </Border>
+                    </Border>
                     <ComboBox x:Name="optionComboBox" Grid.Column="1" Grid.Row="1" Margin="0,10,0,0"/>
-                    
+
                     <Border Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="Gray" BorderThickness="0,0,0,1" Padding="0,10,0,5">
                         <TextBlock Text="Vistas"/>
                     </Border>
