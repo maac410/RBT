@@ -20,8 +20,21 @@
                     <Border Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="Gray" BorderThickness="0,0,0,1" Padding="0,0,0,5">
                         <TextBlock Text="Rotulo"></TextBlock>
                         </Border>
+<<<<<<< HEAD
                     <ComboBox x:Name="optionComboBox" Grid.Column="1" Grid.Row="1" Margin="0,10,0,0"/>
                     
+=======
+                            <Button Name="OptionButton" Grid.Row="1" Content="Rotulo" Grid.Column="1" VerticalAlignment="Top" HorizontalContentAlignment="Left" Padding="10,0"  HorizontalAlignment="Left" Margin="0,10" Width="100">
+
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Option 1" Click="Option1_Click" />
+                                <MenuItem Header="Option 2" Click="Option2_Click" />
+                                <MenuItem Header="Option 3" Click="Option3_Click" />
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+>>>>>>> 84e1703b7c5115cec0489e8ed7ad314be6493ae4
                     <Border Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="Gray" BorderThickness="0,0,0,1" Padding="0,10,0,5">
                         <TextBlock Text="Vistas"/>
                     </Border>

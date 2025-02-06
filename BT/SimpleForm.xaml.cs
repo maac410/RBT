@@ -1,5 +1,8 @@
 using Autodesk.Revit.DB;
+<<<<<<< HEAD
 using Autodesk.Revit.UI;
+=======
+>>>>>>> 84e1703b7c5115cec0489e8ed7ad314be6493ae4
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,6 +17,7 @@ namespace BT
     {
         private Dictionary<string, HashSet<string>> categoryParameters;
 
+<<<<<<< HEAD
         private List<string> sheetNames;
 
         int newRowIndex = 3; 
@@ -40,6 +44,20 @@ namespace BT
             // Show the list in a MessageBox
             MessageBox.Show(listContent, "List of Items");
             newRowIndex++;
+=======
+        int newRowIndex = 3; 
+
+        // Constructor that accepts the category parameters dictionary
+        public SimpleForm(Dictionary<string, HashSet<string>> categoryParameters)
+        {
+            InitializeComponent();
+            this.categoryParameters = categoryParameters;
+            DisplayVistas();
+            DisplayTablas();
+        }
+        private void DisplayTablas()
+        {
+>>>>>>> 84e1703b7c5115cec0489e8ed7ad314be6493ae4
             // Add a Border to visually separate the area for "Tablas"
             Border tablasBorder = new Border
             {
@@ -137,6 +155,34 @@ namespace BT
                 grid.Children.Add(buttonPanel);
 
                 // Increment row index for the next category
+<<<<<<< HEAD
+=======
+                newRowIndex++;
+            }
+        }
+
+        private void DisplayVistas()
+        {
+            // Declare the string array for vistas
+            string[] nVistas = { "Top", "Bottom", "Elevation Right", "Elevation Left", "Elevation North", "Elevation South", "Isometric" };
+
+            // Iterate through the nVistas array to create a CheckBox for each item
+            foreach (string vista in nVistas)
+            {
+                // Create a new CheckBox for each element in the array
+                var checkBox = new CheckBox
+                {
+                    Content = vista, // Set the content of the checkbox to the current vista name
+                    Margin = new Thickness(0, 10, 0, 5),
+                    IsChecked = true // Default is checked, change as necessary
+                };
+
+                // Add the checkbox directly into the grid
+                System.Windows.Controls.Grid.SetRow(checkBox, newRowIndex);
+                System.Windows.Controls.Grid.SetColumn(checkBox, 1); // Place checkbox in the first column
+                grid.Children.Add(checkBox);
+
+>>>>>>> 84e1703b7c5115cec0489e8ed7ad314be6493ae4
                 newRowIndex++;
             }
         }

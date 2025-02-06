@@ -140,7 +140,11 @@ namespace BT
                 if (hasAssembly.HasValue && hasAssembly.Value && selectedIds.Count < 2)
                 {
                     // Pass the categories and their parameters to the SimpleForm correctly
+<<<<<<< HEAD
                     var simpleForm = new SimpleForm(categoryParameters, sheetNames);
+=======
+                    var simpleForm = new SimpleForm(categoryParameters);
+>>>>>>> 84e1703b7c5115cec0489e8ed7ad314be6493ae4
                     simpleForm.ShowDialog();
                 }
 
