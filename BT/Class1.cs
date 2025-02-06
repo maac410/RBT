@@ -49,8 +49,7 @@ namespace BT
 
             Autodesk.Revit.UI.Selection.Selection selection = uidoc.Selection;
             bool? hasAssembly = null;
-            HashSet<string> processedCategories = new HashSet<string>();
-            HashSet<string> processedParameters = new HashSet<string>();
+            Dictionary<string, HashSet<string>> categoryParameters = new Dictionary<string, HashSet<string>>();
 
             try
             {
@@ -62,10 +61,6 @@ namespace BT
                     TaskDialog.Show("Revit", "You haven't selected any elements.");
                     return Result.Failed;
                 }
-
-                // Lists to accumulate categories and parameters
-                List<string> categories = new List<string>();
-                List<string> parameters = new List<string>();
 
                 // Iterate through the selected elements
                 foreach (ElementId id in selectedIds)
@@ -87,29 +82,34 @@ namespace BT
                             ElementType memberType = doc.GetElement(member.GetTypeId()) as ElementType;
                             string categoryName = member.Category.Name;
 
-                            // Add the category name to categories list if not already added
-                            if (!processedCategories.Contains(categoryName))
+                            // Initialize the parameter set for this category if not already
+                            if (!categoryParameters.ContainsKey(categoryName))
                             {
-                                processedCategories.Add(categoryName);
-              
+                                categoryParameters[categoryName] = new HashSet<string>();
                             }
 
                             // Collect parameters for the member type
                             if (memberType != null)
                             {
                                 Parameter[] typeParameters = memberType.Parameters.Cast<Parameter>().ToArray();
+
                                 foreach (Parameter param in typeParameters)
                                 {
                                     string paramName = param.Definition.Name;
 
-                                    // Add parameter name to the parameters list if not already added
-                                    if (!processedParameters.Contains(paramName))
-                                    {
-                                        processedParameters.Add(paramName);
-                                        parameters.Add(paramName);  // Add to the parameters list
-                                        categories.Add(categoryName);  // Add to the categories list
-                                    }
+                                    // Add the parameter to the respective category's set
+                                    categoryParameters[categoryName].Add(paramName);
                                 }
+                            }
+
+                            // Collect parameters for the member itself (not just the type)
+                            Parameter[] elementParameters = member.Parameters.Cast<Parameter>().ToArray();
+                            foreach (Parameter param in elementParameters)
+                            {
+                                string paramName = param.Definition.Name;
+
+                                // Add the parameter to the respective category's set
+                                categoryParameters[categoryName].Add(paramName);
                             }
                         }
                     }
@@ -123,10 +123,11 @@ namespace BT
                 // If an assembly instance was found and less than two assemblies are selected, show the form
                 if (hasAssembly.HasValue && hasAssembly.Value && selectedIds.Count < 2)
                 {
-                    // Pass categories and parameters directly to SimpleForm
-                    var simpleForm = new SimpleForm(categories, parameters, processedCategories, processedParameters);
+                    // Pass the categories and their parameters to the SimpleForm correctly
+                    var simpleForm = new SimpleForm(categoryParameters);
                     simpleForm.ShowDialog();
                 }
+
                 else
                 {
                     TaskDialog.Show("Revit", "No assembly instance elements selected, an item that isn't an assembly selected, or more than one assembly selected.");

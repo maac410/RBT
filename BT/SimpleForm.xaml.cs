@@ -1,78 +1,110 @@
+using Autodesk.Revit.DB;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace BT
 {
     public partial class SimpleForm : Window
     {
-        private List<string> categories;
-        private List<string> parameters;
-        private HashSet<string> processedCategories;
-        private HashSet<string> processedParameters;
+        private Dictionary<string, HashSet<string>> categoryParameters;
 
-        public SimpleForm(List<string> categories, List<string> parameters, HashSet<string> processedCategories, HashSet<string> processedParameters)
+        int newRowIndex = 3; 
+
+        // Constructor that accepts the category parameters dictionary
+        public SimpleForm(Dictionary<string, HashSet<string>> categoryParameters)
         {
             InitializeComponent();
-            this.categories = categories;
-            this.parameters = parameters;
-            this.processedCategories = processedCategories;
-            this.processedParameters = processedParameters;
-
-            DisplayInfo();
+            this.categoryParameters = categoryParameters;
+            DisplayVistas();
+            DisplayTablas();
         }
-
-        private void DisplayInfo()
+        private void DisplayTablas()
         {
-            int newRowIndex = 2;
+            // Add a Border to visually separate the area for "Tablas"
+            Border tablasBorder = new Border
+            {
+                BorderBrush = Brushes.Gray,
+                BorderThickness = new Thickness(0, 0, 0, 1),
+                Padding = new Thickness(0, 10, 0, 5),
+            };
 
-            // Add row definitions for each category
-            for (int i = grid.RowDefinitions.Count; i < categories.Count; i++)
+            // Create a TextBlock for the "Tablas" label inside the Border
+            TextBlock tablasTextBlock = new TextBlock
+            {
+                Text = "Tablas",
+            };
+            tablasBorder.Child = tablasTextBlock;
+
+            // Add the Border to the grid
+            System.Windows.Controls.Grid.SetRow(tablasBorder, newRowIndex);  // Adjust row as needed
+            System.Windows.Controls.Grid.SetColumn(tablasBorder, 1);  // Place in column 1
+            System.Windows.Controls.Grid.SetColumnSpan(tablasBorder, 3);  // Span across columns
+            grid.Children.Add(tablasBorder);
+
+            newRowIndex++;
+
+            // Ensure enough row definitions
+            for (int i = grid.RowDefinitions.Count; i < categoryParameters.Count *5+2; i++) // +1 to account for the Border
             {
                 grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             }
 
-            // Loop through each category and create a checkbox and list box
-            foreach (string category in processedCategories)
+            // Iterate through the category parameters dictionary
+            foreach (var category in categoryParameters)
             {
-                // Create the ListBox to hold the checkbox for the category
-                ListBox newListBox = new ListBox();
+                // Create the checkbox for the category
                 var checkBox = new CheckBox
                 {
-                    Content = category,
-                    Margin = new Thickness(5),                   
-                    IsChecked = processedCategories.Contains(category) // Check the box if processedCategories contains the category
+                    Content = category.Key,  // category name
+                    Margin = new Thickness(0, 10, 0, 5),
+                    IsChecked = true // Default is checked, change as necessary
                 };
 
-                // Add checkbox to the ListBox
-                newListBox.Items.Add(checkBox);
+                // Add the category checkbox directly into the grid
+                System.Windows.Controls.Grid.SetRow(checkBox, newRowIndex);
+                System.Windows.Controls.Grid.SetColumn(checkBox, 1); // Place checkbox in column 1
+                grid.Children.Add(checkBox);
 
-                // Set the row and column for the ListBox containing the checkbox
-                Grid.SetRow(newListBox, newRowIndex);
-                Grid.SetColumn(newListBox, 1);
-                grid.Children.Add(newListBox);
-
-
-                // Increment row index for the next iteration
+                // Increment row index for the next element (to keep checkboxes and parameters separate)
                 newRowIndex++;
 
-                // Create a new ListBox for the parameters
-                ListBox parameterListBox = new ListBox {
-                    MaxHeight = 200,
-                    Margin= new Thickness(0,0,0,30)
-                };
-                foreach (var parameter in processedParameters)
+                // Create and add ListBoxes for parameters related to the category
+                ListBox parameterListBox = new ListBox
                 {
-                    parameterListBox.Items.Add(parameter);
+                    MaxHeight = 200,
+                };
+
+                ListBox parameterListBox2 = new ListBox
+                {
+                    MaxHeight = 200,
+                };
+
+                // Populate the ListBoxes with unique parameters for this category
+                if (categoryParameters.ContainsKey(category.Key))
+                {
+                    HashSet<string> uniqueParameters = new HashSet<string>(category.Value);  // Ensures unique parameters
+
+                    foreach (var parameter in uniqueParameters)
+                    {
+                        parameterListBox.Items.Add(parameter);
+                    }
                 }
 
-                // Set the row and column for the parameter list box
-                Grid.SetRow(parameterListBox, newRowIndex);
-                Grid.SetColumn(parameterListBox, 1);
+                // Add the ListBoxes into the grid
+                System.Windows.Controls.Grid.SetRow(parameterListBox, newRowIndex);
+                System.Windows.Controls.Grid.SetColumn(parameterListBox, 1); // Column 1
                 grid.Children.Add(parameterListBox);
 
-                // Add a StackPanel for the buttons below the ListBoxes (Up, Down, Minus, Plus)
+                System.Windows.Controls.Grid.SetRow(parameterListBox2, newRowIndex);
+                System.Windows.Controls.Grid.SetColumn(parameterListBox2, 3); // Column 3
+                grid.Children.Add(parameterListBox2);
+
+                // Add the buttons (Up, Down, Minus, Plus)
                 StackPanel buttonPanel = new StackPanel
                 {
                     Orientation = Orientation.Vertical,
@@ -84,12 +116,37 @@ namespace BT
                 buttonPanel.Children.Add(CreateButton("Minus", "-", Minus_Click));
                 buttonPanel.Children.Add(CreateButton("Plus", "+", Plus_Click));
 
-                // Set row and column for the button panel
-                Grid.SetRow(buttonPanel, newRowIndex);
-                Grid.SetColumn(buttonPanel, 2);
+                // Add the button panel to the grid
+                System.Windows.Controls.Grid.SetRow(buttonPanel, newRowIndex);
+                System.Windows.Controls.Grid.SetColumn(buttonPanel, 2); // Column 2
                 grid.Children.Add(buttonPanel);
 
-                // Increment row index for the next iteration
+                // Increment row index for the next category
+                newRowIndex++;
+            }
+        }
+
+        private void DisplayVistas()
+        {
+            // Declare the string array for vistas
+            string[] nVistas = { "Top", "Bottom", "Elevation Right", "Elevation Left", "Elevation North", "Elevation South", "Isometric" };
+
+            // Iterate through the nVistas array to create a CheckBox for each item
+            foreach (string vista in nVistas)
+            {
+                // Create a new CheckBox for each element in the array
+                var checkBox = new CheckBox
+                {
+                    Content = vista, // Set the content of the checkbox to the current vista name
+                    Margin = new Thickness(0, 10, 0, 5),
+                    IsChecked = true // Default is checked, change as necessary
+                };
+
+                // Add the checkbox directly into the grid
+                System.Windows.Controls.Grid.SetRow(checkBox, newRowIndex);
+                System.Windows.Controls.Grid.SetColumn(checkBox, 1); // Place checkbox in the first column
+                grid.Children.Add(checkBox);
+
                 newRowIndex++;
             }
         }
