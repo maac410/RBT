@@ -3,12 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="BT-Assembly Blueprint" Height="450" Width="600" ResizeMode="CanResize">
 
+
     <Grid>
         <!-- ScrollViewer to hold dynamic content -->
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <Grid Margin="0,10,0,60">
                 <!-- Subgrid for controls -->
-                <Grid x:Name="grid" Grid.Row="0">
+                <Grid x:Name="grid" Grid.Row="1">
                     <!-- Define columns -->
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="10" />
@@ -17,27 +18,27 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="10" />
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="Gray" BorderThickness="0,0,0,1" Padding="0,0,0,5">
+                    <Image x:Name="image" Source="C:\Users\EC-BT-007\Source\Repos\RBT\BT\img\btLogo.png" Grid.Column="1" Width="200" Height="50" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="0" Panel.ZIndex="2" Margin="0,0,0,10"/>
+                    <Border Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="Gray" BorderThickness="0,0,0,1" Padding="0,0,0,5">
                         <TextBlock Text="Rotulo"></TextBlock>
                     </Border>
-                    <ComboBox x:Name="optionComboBox" Grid.Column="1" Grid.Row="1" Margin="0,10,0,0"/>
+                    <ComboBox x:Name="optionComboBox" Grid.Column="1" Grid.Row="3" Margin="0,10,0,0"/>
 
-                    <Border Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="Gray" BorderThickness="0,0,0,1" Padding="0,10,0,5">
+                    <Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="Gray" BorderThickness="0,0,0,1" Padding="0,10,0,5">
                         <TextBlock Text="Vistas"/>
                     </Border>
                 </Grid>
             </Grid>
         </ScrollViewer>
-
         <!-- DockPanel for OK and CANCEL buttons -->
         <DockPanel VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Background="Gray" Margin="0,30,0,0">
             <!-- CANCEL button -->
             <Button Name="Cancel" Content="CANCEL" HorizontalAlignment="Right" Width="80" Height="30" 
                     Click="Cancel_Click" DockPanel.Dock="Right" Margin="0,10,10,10"/>
-
             <!-- OK button -->
             <Button Name="Ok" Content="OK" HorizontalAlignment="Right" Width="80" Height="30" 
                     Click="Ok_Click" DockPanel.Dock="Left" Margin="0,10,10,10"/>
         </DockPanel>
+
     </Grid>
 </Window>

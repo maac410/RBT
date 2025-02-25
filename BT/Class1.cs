@@ -4,11 +4,12 @@ using Autodesk.Revit.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Autodesk.Revit.UI.Selection;
 using Parameter = Autodesk.Revit.DB.Parameter;
 using System.Reflection;
-using Autodesk.Revit.DB.ExtensibleStorage;
-using System.Collections.ObjectModel;
+using System.Windows.Media.Imaging;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Windows;
 
 namespace BT
 {
@@ -26,57 +27,68 @@ namespace BT
                 return Result.Failed;
             }
         }
-
         public Result OnStartup(UIControlledApplication application)
         {
-            RibbonPanel ribbonPanel = application.CreateRibbonPanel("BT");
+            RibbonPanel ribbonPanel = application.CreateRibbonPanel("Rbt");
             string thisAssemblyPath = Assembly.GetExecutingAssembly().Location;
-
-            PushButtonData buttonData = new PushButtonData("cmdMyTest", "RBT", thisAssemblyPath, "BT.MyTest");
+            // Define the relative path to your image (assuming it's in a folder called 'Images' in your project)
+            string imageFolderPath = Path.Combine(Path.GetDirectoryName(thisAssemblyPath), "Images");
+            string iconPath = Path.Combine(imageFolderPath, "C:\\Users\\EC-BT-007\\Source\\Repos\\RBT\\BT\\img\\btLogoSmall.png");
+            // Create the PushButtonData with the icon
+            PushButtonData buttonData = new PushButtonData("cmdMyTest", "Create Assembly Blueprint", thisAssemblyPath, "BT.MyTest")
+            {
+                LargeImage = new BitmapImage(new Uri(iconPath)) // Assigning the icon
+            };
+            // Create the push button and set tooltip
             PushButton pushButton = ribbonPanel.AddItem(buttonData) as PushButton;
             pushButton.ToolTip = "Create an Assembly Blueprint";
-
             return Result.Succeeded;
         }
     }
-
     [Transaction(TransactionMode.Manual)]
     public class MyTest : IExternalCommand
     {
+
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             var uiapp = commandData.Application;
             var uidoc = uiapp.ActiveUIDocument;
             var doc = uidoc.Document;
-
             Autodesk.Revit.UI.Selection.Selection selection = uidoc.Selection;
-            bool? hasAssembly = null;
             Dictionary<string, HashSet<string>> categoryParameters = new Dictionary<string, HashSet<string>>();
 
             // Create a filtered element collector for the current document
             FilteredElementCollector collector = new FilteredElementCollector(doc);
 
+            // List to store the names of the available title blocks
             List<string> sheetNames = new List<string>();
-            collector.OfClass(typeof(FamilySymbol))
-                     .OfCategory(BuiltInCategory.OST_TitleBlocks);
+            string assemblyName = "default";
+            AssemblyInstance selectedAssembly = null;  // To hold the selected assembly instance
+
+            // Collect FamilySymbols of the OST_TitleBlocks category
+            var titleBlockSymbols = collector.OfClass(typeof(FamilySymbol))
+                                             .OfCategory(BuiltInCategory.OST_TitleBlocks)
+                                             .ToList();
 
             // Loop through the collected FamilySymbols (TitleBlock family types)
-            foreach (Element element in collector)
+            foreach (Element element in titleBlockSymbols)
             {
                 FamilySymbol titleBlockFamilyType = element as FamilySymbol;
                 sheetNames.Add(titleBlockFamilyType.Name);
             }
 
-                try
+            try
             {
                 // Get the selected elements
                 ICollection<ElementId> selectedIds = selection.GetElementIds();
-
                 if (selectedIds.Count == 0)
                 {
                     TaskDialog.Show("Revit", "You haven't selected any elements.");
                     return Result.Failed;
                 }
+
+                // Create a HashSet to store unique BuiltInCategory values
+                HashSet<BuiltInCategory> uniqueCategories = new HashSet<BuiltInCategory>();
 
                 // Iterate through the selected elements
                 foreach (ElementId id in selectedIds)
@@ -86,67 +98,80 @@ namespace BT
                     // Check if the element is an AssemblyInstance
                     if (element is AssemblyInstance assemblyInstance)
                     {
-                        hasAssembly = true;
+                        selectedAssembly = assemblyInstance;
+                        assemblyName = assemblyInstance.Name;
 
-                        // Get the member IDs (elements inside the assembly)
+                        // Collect member IDs for this AssemblyInstance
                         ICollection<ElementId> memberIds = assemblyInstance.GetMemberIds();
 
-                        // Iterate over the members of the assembly
                         foreach (ElementId memberId in memberIds)
                         {
+                            // Get the member element
                             Element member = doc.GetElement(memberId);
-                            ElementType memberType = doc.GetElement(member.GetTypeId()) as ElementType;
-                            string categoryName = member.Category.Name;
+
+                            if (member == null) continue;
+
+                            // Get the category of the member
+                            Category memberCategory = member.Category;
+
+                            if (memberCategory == null) continue;
+
+                            // Get the BuiltInCategory from the member's Category
+                            BuiltInCategory builtInCategory = memberCategory.Id.IntegerValue != -1 ? (BuiltInCategory)memberCategory.Id.IntegerValue : BuiltInCategory.INVALID;
+
+                            // Add the BuiltInCategory to the HashSet (duplicates are automatically handled)
+                            if (builtInCategory != BuiltInCategory.INVALID)
+                            {
+                                uniqueCategories.Add(builtInCategory);
+                            }
 
                             // Initialize the parameter set for this category if not already
+                            string categoryName = memberCategory.Name;
+
                             if (!categoryParameters.ContainsKey(categoryName))
                             {
                                 categoryParameters[categoryName] = new HashSet<string>();
                             }
 
                             // Collect parameters for the member type
+                            ElementType memberType = doc.GetElement(member.GetTypeId()) as ElementType;
                             if (memberType != null)
                             {
-                                Parameter[] typeParameters = memberType.Parameters.Cast<Parameter>().ToArray();
-
-                                foreach (Parameter param in typeParameters)
+                                foreach (Parameter param in memberType.Parameters.Cast<Parameter>())
                                 {
                                     string paramName = param.Definition.Name;
-
-                                    // Add the parameter to the respective category's set
                                     categoryParameters[categoryName].Add(paramName);
                                 }
                             }
 
                             // Collect parameters for the member itself (not just the type)
-                            Parameter[] elementParameters = member.Parameters.Cast<Parameter>().ToArray();
-                            foreach (Parameter param in elementParameters)
+                            foreach (Parameter param in member.Parameters.Cast<Parameter>())
                             {
                                 string paramName = param.Definition.Name;
-
-                                // Add the parameter to the respective category's set
                                 categoryParameters[categoryName].Add(paramName);
+                            }
+
+                            // Now, add schedulable fields to the category parameters
+                            List<SchedulableField> schedulableFields = GetSchedulableFieldsForCategory(doc, memberCategory);
+
+                            foreach (SchedulableField field in schedulableFields)
+                            {
+                                string fieldName = field.GetName(doc);
+                                categoryParameters[categoryName].Add(fieldName);
                             }
                         }
                     }
-                    else
-                    {
-                        TaskDialog.Show("Revit", "One of the selected elements is not an assembly instance.");
-                        return Result.Failed;
-                    }
                 }
 
-                // If an assembly instance was found and less than two assemblies are selected, show the form
-                if (hasAssembly.HasValue && hasAssembly.Value && selectedIds.Count < 2)
+                if (selectedAssembly != null)
                 {
-                    // Pass the categories and their parameters to the SimpleForm correctly
-                    var simpleForm = new SimpleForm(categoryParameters, sheetNames);
+                    // Open the SimpleForm, passing the selected assembly instance, category parameters, and sheet names
+                    var simpleForm = new SimpleForm(commandData, categoryParameters, sheetNames, assemblyName, selectedAssembly, uniqueCategories);
                     simpleForm.ShowDialog();
                 }
-
                 else
                 {
-                    TaskDialog.Show("Revit", "No assembly instance elements selected, an item that isn't an assembly selected, or more than one assembly selected.");
+                    TaskDialog.Show("Revit", "No assembly instance selected.");
                 }
 
                 return Result.Succeeded;
@@ -156,6 +181,24 @@ namespace BT
                 message = e.Message;
                 return Result.Failed;
             }
+        }
+
+        // Helper method to get schedulable fields for a specific category
+        private List<SchedulableField> GetSchedulableFieldsForCategory(Document doc, Category category)
+        {
+            var scheduleViews = new FilteredElementCollector(doc)
+                                .OfClass(typeof(ViewSchedule))
+                                .Cast<ViewSchedule>()
+                                .ToList();
+
+            foreach (var schedule in scheduleViews)
+            {
+                if (schedule.Definition.CategoryId.IntegerValue == category.Id.IntegerValue)
+                {
+                    return schedule.Definition.GetSchedulableFields().ToList();
+                }
+            }
+            return new List<SchedulableField>();
         }
     }
 }
